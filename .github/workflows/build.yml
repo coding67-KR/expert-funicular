@@ -1,4 +1,4 @@
-name: Build GUI
+name: Build Windows EXE
 
 on:
   workflow_dispatch:
@@ -21,13 +21,53 @@ jobs:
         with:
           gradle-version: '8.14.4'
 
-      - name: Build
+      - name: Build distribution
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: gradle build --no-daemon
+        run: gradle installDist --no-daemon
 
-      - name: Upload JAR
+      - name: Package Java-embedded EXE
+        shell: pwsh
+        run: |
+          $installDir = "build/install/$(Select-String -Path settings.gradle.kts -Pattern 'rootProject.name').ToString().Split('=')[1].Trim().Trim('"')"
+          if (-not (Test-Path $installDir)) {
+            $installDir = "build/install/expert-funicular"
+          }
+
+          $libDir = Join-Path $installDir "lib"
+          $mainJar = Get-ChildItem $libDir -Filter "*.jar" |
+            Where-Object { $_.Name -match '^expert-funicular.*\.jar$' } |
+            Select-Object -First 1
+
+          if (-not $mainJar) {
+            $mainJar = Get-ChildItem $libDir -Filter "*.jar" | Select-Object -First 1
+          }
+          if (-not $mainJar) { throw "Main JAR not found in $libDir" }
+
+          New-Item -ItemType Directory -Force -Path "build/package-input" | Out-Null
+          Copy-Item "$libDir\*.jar" "build/package-input\" -Force
+
+          jpackage `
+            --type exe `
+            --name "TwentyQuestionsAI" `
+            --app-version "0.1.0" `
+            --input "build/package-input" `
+            --main-jar $mainJar.Name `
+            --main-class game.MainKt `
+            --dest "build/exe" `
+            --win-menu `
+            --win-shortcut `
+            --win-dir-chooser `
+            --vendor "Twenty Questions AI"
+
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
-          name: twenty-questions-gui
+          name: twenty-questions-windows-exe
+          path: build/exe/*.exe
+
+      - name: Upload JAR too
+        uses: actions/upload-artifact@v4
+        with:
+          name: twenty-questions-jar
           path: build/libs/*.jar
