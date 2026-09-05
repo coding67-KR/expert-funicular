@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.4.10"
     application
 }
 
@@ -11,7 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.genai:google-genai:1.67.0")
+    implementation("com.google.genai:google-genai-kotlin:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     testImplementation(kotlin("test"))
 }
 
