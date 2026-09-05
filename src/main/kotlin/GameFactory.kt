@@ -5,7 +5,7 @@ class GameFactory {
         val target = TargetWord(targetWord)
         return TwentyQuestionsGame(
             target = target,
-            ai = AiGameEngine(GeminiClient.fromEnvironment()),
+            ai = AiGameEngine(Api.fromEnvironment()),
             ui = ConsoleUI(),
             state = GameState()
         )
