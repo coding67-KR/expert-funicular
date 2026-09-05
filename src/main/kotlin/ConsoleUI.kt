@@ -31,7 +31,14 @@ class ConsoleUI {
     }
 
     fun showResult(state: GameState) {
-        println("\n질문 ${state.history.size}개 사용.")
+        val resultText = when (state.result) {
+            GameResult.WIN -> "🎉 AI가 정답을 맞혔습니다!"
+            GameResult.OUT_OF_QUESTIONS -> "20번 안에 정답을 찾지 못했습니다."
+            GameResult.ABORTED -> "게임이 중단되었습니다."
+            null -> "게임이 종료되었습니다."
+        }
+        println("\n$resultText")
+        println("질문 ${state.history.size}개 사용.")
     }
 
     fun showGoodbye() {
