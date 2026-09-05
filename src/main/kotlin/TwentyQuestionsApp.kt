@@ -159,7 +159,7 @@ class TwentyQuestionsApp {
                     SwingUtilities.invokeLater {
                         questionLabel.text = "AI의 추측: ${guess.value}"
                     }
-                    val localMatch = GuessEvaluator().matches(TargetWord(target), guess)
+                    val localMatch = GuessEvaluator.isCorrect(guess, TargetWord(target))
                     if (localMatch) {
                         SwingUtilities.invokeLater { finishWin(guess.value) }
                         return@thread
