@@ -7,19 +7,23 @@ class TwentyQuestionsGame(
     private val state: GameState
 ) {
     fun start() {
-        ui.showTarget(target)
         while (!state.isFinished) {
             val question = ai.nextQuestion(state.history)
             state.ask(question)
-            ui.showQuestion(question, state.questionNumber)
+            ui.showQuestion(question, state.questionNumber + 1)
             val answer = ui.readAnswer()
             state.record(question, answer)
-            val guess = ai.tryGuess(target, state.history)
+
+            val guess = ai.tryGuess(state.history)
             if (guess != null) {
                 ui.showGuess(guess)
-                state.finish()
+                if (GuessEvaluator.isCorrect(guess, target)) {
+                    state.finish(GameResult.WIN)
+                }
             }
         }
+
+        if (!state.isFinished) state.finish(GameResult.OUT_OF_QUESTIONS)
         ui.showResult(state)
     }
 }
