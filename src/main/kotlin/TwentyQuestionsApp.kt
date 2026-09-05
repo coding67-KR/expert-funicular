@@ -17,9 +17,8 @@ import javax.swing.SwingUtilities
 import javax.swing.WindowConstants
 import kotlin.concurrent.thread
 
-class TwentyQuestionsApp(
-    private val api: Api = Api.fromEnvironment()
-) {
+class TwentyQuestionsApp {
+    private lateinit var api: Api
     private lateinit var frame: JFrame
     private lateinit var targetField: JTextField
     private lateinit var questionLabel: JLabel
@@ -40,6 +39,7 @@ class TwentyQuestionsApp(
         frame = JFrame("스무고개 AI")
         frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         frame.minimumSize = Dimension(760, 600)
+        frame.setSize(820, 640)
         frame.setLocationRelativeTo(null)
 
         val root = JPanel(BorderLayout(16, 16))
@@ -102,7 +102,15 @@ class TwentyQuestionsApp(
     private fun startGame() {
         val entered = targetField.text.trim()
         if (entered.isBlank()) {
+            questionLabel.text = "정답 단어를 먼저 입력하세요."
             targetField.requestFocus()
+            return
+        }
+
+        try {
+            api = Api.fromEnvironment()
+        } catch (ex: Exception) {
+            questionLabel.text = "API 키가 필요합니다: GOOGLE_API_KEY"
             return
         }
 
